@@ -6,16 +6,16 @@ use strict;
 our $VERSION = '0.01';
 
 use Sub::Exporter -setup => {
-	exports => [
-		qw(
-			handler_bind
-			handler_case
-			report
-			error
-			cerror
-			warn
-		)
-	],
+    exports => [
+        qw(
+            handler_bind
+            handler_case
+            report
+            error
+            cerror
+            warn
+        )
+    ],
 };
 
 use Carp qw(carp croak);
@@ -33,79 +33,79 @@ our $barrier;
 # hakurei
 
 sub handler_bind (&$) {
-	my ($body, $handler) = @_;
-	my $limit = @handlers;
-	my $guard = on_scope_exit { splice @handlers, $limit };
-	if (ref($handler) eq 'ARRAY') {
-		$handler = dispatch @$handler;
-	}
-	push @handlers, \&$handler;
-	$body->()
+    my ($body, $handler) = @_;
+    my $limit = @handlers;
+    my $guard = on_scope_exit { splice @handlers, $limit };
+    if (ref($handler) eq 'ARRAY') {
+        $handler = dispatch @$handler;
+    }
+    push @handlers, \&$handler;
+    $body->()
 }
 
 sub handler_case (&$) {
-	my ($body, $genhandler) = @_;
-	my $limit = @handlers;
-	my $guard = on_scope_exit { splice @handlers, $limit };
-	if (ref($genhandler) eq 'ARRAY') {
-		$genhandler = class_case @$genhandler;
-	}
-	$genhandler = \&$genhandler;
-	my $wantlist = wantarray;
-	my @v = with_return {
-		my ($return) = @_;
-		push @handlers, sub {
-			my $handler = $genhandler->(@_) or return;
-			$return->($handler, @_);
-		};
-		unless (defined $wantlist) {
-			$body->();
-			return;
-		}
-		undef, $wantlist ? $body->() : scalar $body->()
-	};
-	if (my $f = shift @v) {
-		return $f->(@v);
-	}
-	$wantlist ? @v : $v[0]
+    my ($body, $genhandler) = @_;
+    my $limit = @handlers;
+    my $guard = on_scope_exit { splice @handlers, $limit };
+    if (ref($genhandler) eq 'ARRAY') {
+        $genhandler = class_case @$genhandler;
+    }
+    $genhandler = \&$genhandler;
+    my $wantlist = wantarray;
+    my @v = with_return {
+        my ($return) = @_;
+        push @handlers, sub {
+            my $handler = $genhandler->(@_) or return;
+            $return->($handler, @_);
+        };
+        unless (defined $wantlist) {
+            $body->();
+            return;
+        }
+        undef, $wantlist ? $body->() : scalar $body->()
+    };
+    if (my $f = shift @v) {
+        return $f->(@v);
+    }
+    $wantlist ? @v : $v[0]
 }
 
 
 # reimu
 
 sub report {
-	my ($incident) = @_;
-	my $limit = defined $barrier ? $barrier : $#handlers;
-	for my $i (reverse 0 .. $limit) {
-		my $h = $handlers[$i];
-		local $barrier = $i - 1;
-		$h->($incident);
-	}
+    my ($incident) = @_;
+    my $limit = defined $barrier ? $barrier : $#handlers;
+    for my $i (reverse 0 .. $limit) {
+        my $h = $handlers[$i];
+        local $barrier = $i - 1;
+        $h->($incident);
+    }
 }
 
 sub error {
-	my ($incident) = @_;
-	report $incident;
-	die $incident;
+    my ($incident) = @_;
+    report $incident;
+    die $incident;
 }
 
 sub cerror {
-	my ($incident) = @_;
-	Worlogog::Restart::case {
-		error $incident;
-	} {
-		continue => sub {},
-	};
+    my ($incident) = @_;
+    Worlogog::Restart::case {
+        error $incident;
+    } {
+        continue => sub {},
+    };
 }
 
 sub warn {
-	my ($incident) = @_;
-	Worlogog::Restart::case {
-		report $incident;
-		carp $incident;
-	} {
-		muffle_warning => sub {},
-	};
+    my ($incident) = @_;
+    Worlogog::Restart::case {
+        report $incident;
+        carp $incident;
+    } {
+        muffle_warning => sub {},
+    };
 }
 
 'ok'
