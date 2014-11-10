@@ -3,7 +3,7 @@ package Worlogog::Incident;
 use warnings;
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Carp qw(carp);
 use Scope::OnExit::Wrap qw(on_scope_exit);
@@ -312,7 +312,7 @@ Lukas Mai, C<< <l.mai at web.de> >>
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2013 Lukas Mai.
+Copyright 2013, 2014 Lukas Mai.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published
