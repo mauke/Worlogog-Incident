@@ -5,24 +5,22 @@ use strict;
 
 our $VERSION = '0.01';
 
-use Sub::Exporter -setup => {
-    exports => [
-        qw(
-            handler_bind
-            handler_case
-            report
-            error
-            cerror
-            warn
-        )
-    ],
-};
-
-use Carp qw(carp croak);
+use Carp qw(carp);
 use Scope::OnExit::Wrap qw(on_scope_exit);
 use Return::MultiLevel qw(with_return);
 use Worlogog::Restart;
 use Dispatch::Class qw(dispatch class_case);
+
+use parent 'Exporter::Tiny';
+
+our @EXPORT_OK = qw(
+    handler_bind
+    handler_case
+    report
+    error
+    cerror
+    warn
+);
 
 #our @CARP_NOT = qw(Worlogog::Restart);
 
@@ -119,7 +117,7 @@ Worlogog::Incident - Lisp-style resumable exceptions (conditions)
 =head1 SYNOPSIS
 
   use Worlogog::Incident -all => { -prefix => 'incident_' };
-  use Worlogog::Restart -all => { -prefix => 'restart_' };
+  use Worlogog::Restart  -all => { -prefix => 'restart_' };
   
   sub log_analyzer {
     incident_handler_bind {
@@ -266,7 +264,8 @@ I<INCIDENT> as a normal Perl exception. Equivalent to:
 
 =item cerror INCIDENT
 
-Works like C<error> with a L<restart|Worlogog::Restart> called C<'continue'> wrapped around it:
+Works like C<error> with a L<restart|Worlogog::Restart> called C<'continue'>
+wrapped around it:
 
   sub cerror {
     my ($incident) = @_;
@@ -299,12 +298,13 @@ C<'muffle_warning'> is invoked. Equivalent to:
 
 =back
 
-This module uses L<C<Sub::Exporter>|Sub::Exporter>, so you can rename the
+This module uses L<C<Exporter::Tiny>|Exporter::Tiny>, so you can rename the
 imported functions at L<C<use>|perlfunc/use> time.
 
 =head1 SEE ALSO
 
-L<Sub::Exporter>, L<Worlogog::Restart>, L<Return::MultiLevel>, L<Dispatch::Class>
+L<Exporter::Tiny>, L<Worlogog::Restart>, L<Return::MultiLevel>,
+L<Dispatch::Class>
 
 =head1 AUTHOR
 
