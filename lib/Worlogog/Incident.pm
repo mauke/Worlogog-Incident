@@ -195,7 +195,7 @@ The following functions are available:
 
 =item handler_bind BLOCK ARRAYREF
 
-Executes I<BLOCK> while registering the incident handler(s) speficied by
+Executes I<BLOCK> while registering the incident handler(s) specified by
 I<CODEREF> or I<ARRAYREF> (see below). If (during the execution of I<BLOCK>) an
 incident is reported, the innermost registered handler is called with one
 argument (the incident object).
